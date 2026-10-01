@@ -5,7 +5,8 @@
 (function () {
     // Update this URL when embedding on an external company website
     const CONFIG = {
-        apiBaseUrl: window.location.origin // e.g. 'https://memorial-backend.yourcompany.workers.dev'
+        apiBaseUrl: window.location.origin // e.g. 'https://memorial-backend.yourcompany.workers.dev',
+        photoURL: 'https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev',
     };
 
     let searchDebounceTimer = null;
@@ -67,6 +68,10 @@
         }
     }
 
+    function photoSRC(photo) {
+        return config + record.photo_url.replace('/photos', '');
+    }
+
     function renderResults(records) {
         resultsList.innerHTML = '';
 
@@ -82,7 +87,7 @@
             card.className = 'card';
             
             const fullName = `${record.last_name} ${record.first_name} ${record.middle_name || ''}`.trim();
-            const photoSrc = ('https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev' + record.photo_url.replace('/photos', '')) || 'https://via.placeholder.com/300x400?text=No+Photo';
+            const photoSrc = photoSRC(record.photo_url) || 'https://via.placeholder.com/300x400?text=No+Photo';
 
             card.innerHTML = `
                 <img src="${photoSrc}" alt="${fullName}" class="card-photo" loading="lazy">
@@ -99,7 +104,7 @@
 
     function openModal(record) {
         const fullName = `${record.last_name} ${record.first_name} ${record.middle_name || ''}`.trim();
-        const photoSrc = record.photo_url || 'https://via.placeholder.com/300x400?text=No+Photo';
+        const photoSrc =  photoSRC(record.photo_url) || 'https://via.placeholder.com/300x400?text=No+Photo';
 
         modalBody.innerHTML = `
             <div class="memorial-profile">
