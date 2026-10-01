@@ -109,7 +109,7 @@ export default {
                 const photoBuffer = Uint8Array.from(atob(payload.photoBase64), c => c.charCodeAt(0));
                 const photoPath = `${payload.id}.${payload.photoExt || 'jpg'}`;
                 await env.memorial_photos.put(photoPath, photoBuffer);
-                photoUrl = `/photos/${photoPath}`;
+                photoUrl = `/${photoPath}`;
             }
 
             // 3. Save Record to D1 Database

@@ -82,7 +82,7 @@
             card.className = 'card';
             
             const fullName = `${record.last_name} ${record.first_name} ${record.middle_name || ''}`.trim();
-            const photoSrc = ('https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev' + record.photo_url) || 'https://via.placeholder.com/300x400?text=No+Photo';
+            const photoSrc = ('https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev' + record.photo_url.?replace('/photos', '')) || 'https://via.placeholder.com/300x400?text=No+Photo';
 
             card.innerHTML = `
                 <img src="${photoSrc}" alt="${fullName}" class="card-photo" loading="lazy">
