@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель завантаження матеріалів</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .admin-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .dropzone {
+            border: 2px dashed #0066cc;
+            border-radius: 8px;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            background: #f0f7ff;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: background 0.2s;
+        }
+
+        .dropzone:hover {
+            background: #e1f0ff;
+        }
+
+        .dropzone input {
+            display: none;
+        }
+
+        .btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn:disabled {
+            background: #a0c4e8;
+            cursor: not-allowed;
+        }
+
+        .progress-box {
+            margin-top: 1.5rem;
+        }
+
+        .progress-bar-bg {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.2s;
+        }
+
+        .log-list {
+            margin-top: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .log-entry { margin-bottom: 0.3rem; }
+        .log-success { color: #4ec9b0; }
+        .log-error { color: #f14c4c; }
+    </style>
+
+    <!-- Client-side DOCX dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+    <div class="admin-card">
+        <h2>Завантаження документів (.docx)</h2>
+        <p style="color: #666; font-size: 0.95rem;">
+            Виберіть один або декілька `.docx` файлів. Браузер розархівує зображення і текст локально та передасть дані на сервер.
+        </p>
+
+        <div class="dropzone" id="dropzone">
+            <p style="margin: 0; font-weight: 600;">Натисніть або перетягніть .docx файли сюди</p>
+            <span id="fileCountLabel" style="font-size: 0.85rem; color: #666; display: block; margin-top: 0.5rem;">
+                Файлів не обрано
+            </span>
+            <input type="file" id="fileInput" multiple accept=".docx">
+        </div>
+
+        <button id="uploadBtn" class="btn" disabled>Розпочати обробку</button>
+
+        <div class="progress-box">
+            <div class="progress-bar-bg">
+                <div id="progressBar" class="progress-bar-fill"></div>
+            </div>
+            <span id="progressStatus" style="font-size: 0.85rem; color: #666;">Готовий до роботи</span>
+        </div>
+
+        <div id="logList" class="log-list"></div>
+    </div>
+
+    <script src="admin.js" defer></script>
+</body>
+</html>
