@@ -3,15 +3,39 @@ export default {
         const url = new URL(request.url);
 
         // --- SEARCH API ---
-        if (request.method === 'GET' && url.pathname === '/api/search') {
-            const query = url.searchParams.get('q');
-            const { results } = await env.memorial_db.prepare(
-                `SELECT id, first_name, last_name, rank, photo_url FROM memorial 
-                 WHERE last_name LIKE ? OR first_name LIKE ? LIMIT 20`
-            ).bind(`${query}%`, `${query}%`).all();
-            
-            return new Response(JSON.stringify(results), { 
-                headers: { 'Content-Type': 'application/json' } 
+       if (request.method === 'GET' && url.pathname === '/api/search') {
+            const rawQuery = url.searchParams.get('q') || '';
+            const query = rawQuery.trim().toLowerCase();
+
+            let results;
+
+            if (!query) {
+                // Return initial records when search box is empty
+                const dbRes = await env.DB.prepare(
+                    `SELECT id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url 
+                     FROM memorial 
+                     LIMIT 50`
+                ).all();
+                results = dbRes.results;
+            } else {
+                // LOWER() enforces Cyrillic case-insensitive substring matching
+                const searchPattern = `%${query}%`;
+                const dbRes = await env.DB.prepare(
+                    `SELECT id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url 
+                     FROM memorial 
+                     WHERE LOWER(last_name) LIKE ? 
+                        OR LOWER(first_name) LIKE ? 
+                        OR LOWER(middle_name) LIKE ?
+                     LIMIT 50`
+                ).bind(searchPattern, searchPattern, searchPattern).all();
+                results = dbRes.results;
+            }
+
+            return new Response(JSON.stringify(results || []), { 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*' 
+                } 
             });
         }
 
