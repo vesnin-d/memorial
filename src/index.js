@@ -11,7 +11,7 @@ export default {
 
             if (!query) {
                 // Return initial records when search box is empty
-                const dbRes = await env.DB.prepare(
+                const dbRes = await env.memorial_db.prepare(
                     `SELECT id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url 
                      FROM memorial 
                      LIMIT 50`
@@ -20,7 +20,7 @@ export default {
             } else {
                 // LOWER() enforces Cyrillic case-insensitive substring matching
                 const searchPattern = `%${query}%`;
-                const dbRes = await env.DB.prepare(
+                const dbRes = await env.memorial_db.prepare(
                     `SELECT id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url 
                      FROM memorial 
                      WHERE LOWER(last_name) LIKE ? 
