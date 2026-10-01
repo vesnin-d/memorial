@@ -245,7 +245,7 @@ window.processSingleItem = async function(index) {
         : null;
 
     const payload = {
-        id: item.id,
+        id: generateCleanId(item.id),
         rawText: item.rawText,
         photoBase64: selectedPhoto ? selectedPhoto.base64 : null,
         photoExt: selectedPhoto ? selectedPhoto.ext : 'jpg'
@@ -289,4 +289,15 @@ async function processAll() {
     }
 
     if (processAllBtn) processAllBtn.disabled = false;
+}
+
+/**
+ * Generates a clean, URL-safe ID from a filename
+ */
+function generateCleanId(fileName) {
+    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+    return nameWithoutExt
+        .trim()
+        .replace(/\s+/g, '_')                           // Replace spaces with underscores
+        .replace(/[^a-zA-Z0-9_\u0400-\u04FF-]/g, '');  // Retain Cyrillic, Latin, numbers, hyphens, and underscores
 }
