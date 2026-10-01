@@ -47,6 +47,9 @@ export default {
                 return new Response(JSON.stringify({ error: "Missing document text" }), { status: 400 });
             }
 
+            // Normalize Windows CRLF line breaks to standard LF
+            const cleanRawText = payload.rawText.replace(/\r\n/g, '\n');
+
             const prompt = `
             Analyze the provided document text for a fallen service member.
             Extract structured metadata strictly according to the schema.
@@ -55,15 +58,16 @@ export default {
             1. Ukrainian names follow the standard 3-part naming structure (Прізвище, Ім'я, По батькові). Extract all three:
             - lastName (Прізвище)
             - firstName (Ім'я)
-            - middleName (По батькові / Patronymic, e.g., Іванович, Васильович, Олександрівна)
+            - middleName (По батькові / Patronymic)
             2. Extract dates of birth and death (formatted DD.MM.YYYY).
             3. Extract rank if present (e.g., "головний сержант").
-            4. For 'serviceHistory', copy ALL remaining detailed text, military unit descriptions, combat actions, and commemorative sentences VERBATIM. Do NOT summarize or rephrase.
+            4. For 'serviceHistory', copy ALL remaining detailed text, military unit descriptions, combat actions, and commemorative sentences VERBATIM.
+            - LINE BREAKS REQUIREMENT: Preserve ALL original line breaks and paragraph separations using literal \\n characters inside the JSON string.
+            - Do NOT collapse paragraphs or consecutive lines into a single continuous block of text.
 
             DOCUMENT TEXT:
-            ${payload.rawText}
+            ${cleanRawText}
             `;
-
             // 1. Call Gemini REST API
             const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${env.GEMINI_API_KEY}`, {
                 method: 'POST',
