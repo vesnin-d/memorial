@@ -5,7 +5,7 @@ export default {
         // --- SEARCH API ---
         if (request.method === 'GET' && url.pathname === '/api/search') {
             const query = url.searchParams.get('q');
-            const { results } = await env.DB.prepare(
+            const { results } = await env.memorial_db.prepare(
                 `SELECT id, first_name, last_name, rank, photo_url FROM memorial 
                  WHERE last_name LIKE ? OR first_name LIKE ? LIMIT 20`
             ).bind(`${query}%`, `${query}%`).all();
@@ -84,12 +84,12 @@ export default {
             if (payload.photoBase64) {
                 const photoBuffer = Uint8Array.from(atob(payload.photoBase64), c => c.charCodeAt(0));
                 const photoPath = `${payload.id}.${payload.photoExt || 'jpg'}`;
-                await env.PHOTOS.put(photoPath, photoBuffer);
+                await env.memorial_photos.put(photoPath, photoBuffer);
                 photoUrl = `/photos/${photoPath}`;
             }
 
             // 3. Save Record to D1 Database
-            await env.DB.prepare(
+            await env.memorial_db.prepare(
                 `INSERT INTO memorial (id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET 
