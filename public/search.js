@@ -5,7 +5,7 @@
 (function () {
     // Update this URL when embedding on an external company website
     const CONFIG = {
-        apiBaseUrl: window.location.origin // e.g. 'https://memorial-backend.yourcompany.workers.dev',
+        apiBaseUrl: 'https://memorial-backend.whizzflask.workers.dev',
         photoURL: 'https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev',
     };
 
