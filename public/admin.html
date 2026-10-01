@@ -91,6 +91,54 @@
         .log-entry { margin-bottom: 0.3rem; }
         .log-success { color: #4ec9b0; }
         .log-error { color: #f14c4c; }
+
+        .multi-photo-picker {
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.picker-label {
+    font-size: 0.85rem;
+    color: #ccc;
+    margin-bottom: 0.5rem;
+}
+
+.thumbnails-grid {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+}
+
+.thumb-wrapper {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 2px;
+    transition: border-color 0.2s ease;
+}
+
+.thumb-wrapper img {
+    width: 70px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 2px;
+    display: block;
+}
+
+.thumb-wrapper.active {
+    border-color: #4caf50; /* Green highlight for selected image */
+}
+
+.file-size {
+    display: block;
+    font-size: 0.7rem;
+    text-align: center;
+    color: #aaa;
+    margin-top: 2px;
+}
     </style>
 
     <!-- Client-side DOCX dependencies -->
