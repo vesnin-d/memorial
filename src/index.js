@@ -18,16 +18,16 @@ export default {
                 ).all();
                 results = dbRes.results;
             } else {
-                // LOWER() enforces Cyrillic case-insensitive substring matching
-                const searchPattern = `%${query}%`;
+                const ftsQuery = query.split(/\s+/).map(term => `"${term}"*`).join(' ');
+
                 const dbRes = await env.memorial_db.prepare(
-                    `SELECT id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url 
-                     FROM memorial 
-                     WHERE LOWER(last_name) LIKE ? 
-                        OR LOWER(first_name) LIKE ? 
-                        OR LOWER(middle_name) LIKE ?
-                     LIMIT 50`
-                ).bind(searchPattern, searchPattern, searchPattern).all();
+                    `SELECT m.id, m.last_name, m.first_name, m.middle_name, m.rank, m.date_of_birth, m.date_of_death, m.service_history, m.photo_url 
+                    FROM memorial m
+                    JOIN memorial_fts fts ON m.rowid = fts.rowid
+                    WHERE memorial_fts MATCH ?
+                    LIMIT 50`
+                ).bind(ftsQuery).all();
+                
                 results = dbRes.results;
             }
 
