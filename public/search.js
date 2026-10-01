@@ -87,7 +87,7 @@
             card.className = 'card';
             
             const fullName = `${record.last_name} ${record.first_name} ${record.middle_name || ''}`.trim();
-            const photoSrc = photoSRC(record.photo_url) || 'https://via.placeholder.com/300x400?text=No+Photo';
+            const photoSrc = photoSRC(record.photo_url) || 'https://dummyimage.com/300x400/000/fff&text=Без+фото';
 
             card.innerHTML = `
                 <img src="${photoSrc}" alt="${fullName}" class="card-photo" loading="lazy">
