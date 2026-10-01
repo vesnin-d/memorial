@@ -5,140 +5,276 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель завантаження матеріалів</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            margin: 0;
+            background-color: #121212;
+            color: #e0e0e0;
             padding: 2rem;
+            min-height: 100vh;
         }
 
         .admin-card {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background: #1e1e1e;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d2d2d;
         }
 
-        .dropzone {
-            border: 2px dashed #0066cc;
-            border-radius: 8px;
-            padding: 3rem 1.5rem;
-            text-align: center;
-            background: #f0f7ff;
-            cursor: pointer;
-            margin-bottom: 1.5rem;
-            transition: background 0.2s;
-        }
-
-        .dropzone:hover {
-            background: #e1f0ff;
-        }
-
-        .dropzone input {
-            display: none;
-        }
-
-        .btn {
-            background: #0066cc;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .btn:disabled {
-            background: #a0c4e8;
-            cursor: not-allowed;
-        }
-
-        .progress-box {
-            margin-top: 1.5rem;
-        }
-
-        .progress-bar-bg {
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
             margin-bottom: 0.5rem;
         }
 
-        .progress-bar-fill {
-            height: 100%;
-            background: #28a745;
-            width: 0%;
-            transition: width 0.2s;
+        .subtitle {
+            color: #aaaaaa;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
         }
 
-        .log-list {
-            margin-top: 1rem;
-            max-height: 250px;
-            overflow-y: auto;
-            font-family: monospace;
+        /* Dropzone */
+        .dropzone {
+            border: 2px dashed #0066cc;
+            border-radius: 8px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            background: rgba(0, 102, 204, 0.05);
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .dropzone:hover, .dropzone.drag-over {
+            background: rgba(0, 102, 204, 0.12);
+            border-color: #3388ff;
+        }
+
+        .dropzone p {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .dropzone span {
             font-size: 0.85rem;
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 1rem;
-            border-radius: 6px;
+            color: #888888;
         }
 
-        .log-entry { margin-bottom: 0.3rem; }
-        .log-success { color: #4ec9b0; }
-        .log-error { color: #f14c4c; }
+        .dropzone input[type="file"] {
+            display: none;
+        }
 
+        /* Controls Bar */
+        .controls-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-primary, .btn-secondary, .btn-danger {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: #ffffff;
+            flex: 2;
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #cccccc;
+            border: 1px solid #3d3d3d;
+            flex: 1;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+            color: #ffffff;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary:disabled, .btn-secondary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-primary:hover:not(:disabled), .btn-secondary:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        /* Queue List Container */
+        .queue-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .empty-queue {
+            text-align: center;
+            padding: 2rem;
+            color: #666666;
+            background: #181818;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px dashed #2a2a2a;
+        }
+
+        /* Queue Item Card */
+        .batch-item-card {
+            background: #252525;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-title {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .item-title strong {
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .item-title .filename {
+            font-size: 0.8rem;
+            color: #888888;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+        .status-processing { background: rgba(33, 150, 243, 0.15); color: #2196f3; }
+        .status-completed { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .status-error { background: rgba(244, 67, 54, 0.15); color: #f44336; }
+
+        /* Single Photo Preview & Badge */
+        .no-photo-badge {
+            font-size: 0.85rem;
+            color: #777777;
+            font-style: italic;
+        }
+
+        .single-photo-preview {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 6px;
+            width: fit-content;
+        }
+
+        .single-photo-preview img {
+            width: 50px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* Multi-Photo Selector Grid */
         .multi-photo-picker {
-    margin: 0.75rem 0;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-}
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border: 1px solid #333;
+        }
 
-.picker-label {
-    font-size: 0.85rem;
-    color: #ccc;
-    margin-bottom: 0.5rem;
-}
+        .picker-label {
+            font-size: 0.85rem;
+            color: #bbbbbb;
+            margin-bottom: 0.5rem;
+        }
 
-.thumbnails-grid {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-}
+        .thumbnails-grid {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
 
-.thumb-wrapper {
-    position: relative;
-    border: 2px solid transparent;
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 2px;
-    transition: border-color 0.2s ease;
-}
+        .thumb-wrapper {
+            position: relative;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 2px;
+            transition: border-color 0.2s ease;
+            background: rgba(0, 0, 0, 0.3);
+        }
 
-.thumb-wrapper img {
-    width: 70px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 2px;
-    display: block;
-}
+        .thumb-wrapper img {
+            width: 65px;
+            height: 85px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+        }
 
-.thumb-wrapper.active {
-    border-color: #4caf50; /* Green highlight for selected image */
-}
+        .thumb-wrapper.active {
+            border-color: #4caf50;
+        }
 
-.file-size {
-    display: block;
-    font-size: 0.7rem;
-    text-align: center;
-    color: #aaa;
-    margin-top: 2px;
-}
+        .file-size {
+            display: block;
+            font-size: 0.7rem;
+            text-align: center;
+            color: #888888;
+            margin-top: 3px;
+        }
+
+        .error-text {
+            font-size: 0.85rem;
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 0.25rem;
+        }
     </style>
 
     <!-- Client-side DOCX dependencies -->
@@ -146,30 +282,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
+
     <div class="admin-card">
         <h2>Завантаження документів (.docx)</h2>
-        <p style="color: #666; font-size: 0.95rem;">
+        <p class="subtitle">
             Виберіть один або декілька `.docx` файлів. Браузер розархівує зображення і текст локально та передасть дані на сервер.
         </p>
 
-        <div class="dropzone" id="dropzone">
-            <p style="margin: 0; font-weight: 600;">Натисніть або перетягніть .docx файли сюди</p>
-            <span id="fileCountLabel" style="font-size: 0.85rem; color: #666; display: block; margin-top: 0.5rem;">
-                Файлів не обрано
-            </span>
-            <input type="file" id="fileInput" multiple accept=".docx">
+        <!-- Dropzone with correct ID matching admin.js -->
+        <div class="dropzone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <p>Натисніть або перетягніть .docx файли сюди</p>
+            <span>Підтримується пакетне завантаження кількох файлів</span>
+            <input type="file" id="file-input" multiple accept=".docx">
         </div>
 
-        <button id="uploadBtn" class="btn" disabled>Розпочати обробку</button>
-
-        <div class="progress-box">
-            <div class="progress-bar-bg">
-                <div id="progressBar" class="progress-bar-fill"></div>
-            </div>
-            <span id="progressStatus" style="font-size: 0.85rem; color: #666;">Готовий до роботи</span>
+        <!-- Global Action Controls -->
+        <div class="controls-bar">
+            <button id="process-all-btn" class="btn-primary" disabled>Обробити всі</button>
+            <button id="clear-queue-btn" class="btn-secondary">Очистити чергу</button>
         </div>
 
-        <div id="logList" class="log-list"></div>
+        <!-- Dynamic Queue Rendering Container -->
+        <div id="queue-container" class="queue-container">
+            <div class="empty-queue">Черга порожня. Перетягніть .docx файли для початку.</div>
+        </div>
     </div>
 
     <script src="admin.js" defer></script>
