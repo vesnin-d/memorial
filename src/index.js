@@ -1,3 +1,7 @@
+function isValidQuery(query) {
+    return query && query.length >= 5 && query.split(' ').length >= 3;
+}
+
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
@@ -9,14 +13,8 @@ export default {
 
             let results;
 
-            if (!query) {
-                // Return initial records when search box is empty
-                const dbRes = await env.memorial_db.prepare(
-                    `SELECT id, last_name, first_name, middle_name, rank, date_of_birth, date_of_death, service_history, photo_url 
-                     FROM memorial 
-                     LIMIT 50`
-                ).all();
-                results = dbRes.results;
+            if (!isValidQuery(query)) {
+                results = [];
             } else {
                 const ftsQuery = query.split(/\s+/).map(term => `"${term}"*`).join(' ');
 
