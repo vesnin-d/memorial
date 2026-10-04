@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-const PHOTO_BASE_URL = 'https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev';
 const EMPTY_RECORD = {
     id: '',
     last_name: '',
@@ -27,14 +26,6 @@ const PHOTO_EXTENSIONS = {
     'image/png': 'png',
     'image/webp': 'webp'
 };
-
-function recordPhotoUrl(photoUrl) {
-    if (typeof photoUrl !== 'string' ||
-        !/^\/[a-zA-Z0-9_\u0400-\u04FF-]+\.(?:jpg|jpeg|png|webp)$/i.test(photoUrl)) {
-        return '';
-    }
-    return `${PHOTO_BASE_URL}${photoUrl}`;
-}
 
 async function fileToBase64(file) {
     const bytes = new Uint8Array(await file.arrayBuffer());
@@ -74,21 +65,6 @@ function RecordEditor() {
     const [status, setStatus] = useState({ message: '', error: false });
     const [saving, setSaving] = useState(false);
     const selectedRecord = records.find(record => record.id === selectedId);
-    const currentPhotoUrl = selectedRecord && !removePhoto
-        ? recordPhotoUrl(selectedRecord.photo_url)
-        : '';
-    const [photoPreview, setPhotoPreview] = useState('');
-
-    useEffect(() => {
-        if (!photo) {
-            setPhotoPreview('');
-            return undefined;
-        }
-        const url = URL.createObjectURL(photo);
-        setPhotoPreview(url);
-        return () => URL.revokeObjectURL(url);
-    }, [photo]);
-
     useEffect(() => {
         let cancelled = false;
         fetch('/api/admin/records')
@@ -227,13 +203,11 @@ function RecordEditor() {
                                 }}
                             /> Видалити поточну фотографію
                         </span>
-                        {(photoPreview || currentPhotoUrl) && (
-                            <img
-                                className="editor-photo-preview"
-                                src={photoPreview || currentPhotoUrl}
-                                alt="Поточна фотографія"
-                            />
-                        )}
+                        <span>
+                            {photo?.name || (selectedRecord?.photo_url && !removePhoto
+                                ? 'Поточна фотографія завантажена'
+                                : 'Фотографію не вибрано')}
+                        </span>
                     </label>
                 </div>
                 <button className="btn-primary" type="submit" disabled={saving}>
