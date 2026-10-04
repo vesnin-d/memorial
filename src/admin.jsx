@@ -28,6 +28,14 @@ const PHOTO_EXTENSIONS = {
     'image/webp': 'webp'
 };
 
+function recordPhotoUrl(photoUrl) {
+    if (typeof photoUrl !== 'string' ||
+        !/^\/[a-zA-Z0-9_\u0400-\u04FF-]+\.(?:jpg|jpeg|png|webp)$/i.test(photoUrl)) {
+        return '';
+    }
+    return `${PHOTO_BASE_URL}${photoUrl}`;
+}
+
 async function fileToBase64(file) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     let binary = '';
@@ -66,6 +74,9 @@ function RecordEditor() {
     const [status, setStatus] = useState({ message: '', error: false });
     const [saving, setSaving] = useState(false);
     const selectedRecord = records.find(record => record.id === selectedId);
+    const currentPhotoUrl = selectedRecord && !removePhoto
+        ? recordPhotoUrl(selectedRecord.photo_url)
+        : '';
     const [photoPreview, setPhotoPreview] = useState('');
 
     useEffect(() => {
@@ -216,10 +227,10 @@ function RecordEditor() {
                                 }}
                             /> Видалити поточну фотографію
                         </span>
-                        {(photoPreview || (!removePhoto && selectedRecord?.photo_url)) && (
+                        {(photoPreview || currentPhotoUrl) && (
                             <img
                                 className="editor-photo-preview"
-                                src={photoPreview || `${PHOTO_BASE_URL}${selectedRecord.photo_url}`}
+                                src={photoPreview || currentPhotoUrl}
                                 alt="Поточна фотографія"
                             />
                         )}
@@ -238,8 +249,8 @@ function RecordEditor() {
 
 async function extractDocxContent(file) {
     const arrayBuffer = await file.arrayBuffer();
-    const textResult = await mammoth.extractRawText({ arrayBuffer });
-    const zip = await JSZip.loadAsync(arrayBuffer);
+    const textResult = await window.mammoth.extractRawText({ arrayBuffer });
+    const zip = await window.JSZip.loadAsync(arrayBuffer);
     const mediaFiles = Object.keys(zip.files).filter(name =>
         name.startsWith('word/media/') && !zip.files[name].dir
     );
