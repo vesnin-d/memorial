@@ -1,7 +1,10 @@
 // Queue State Management
 let batchQueue = [];
+let memorialRecords = [];
+const PHOTO_BASE_URL = 'https://pub-5339af3e484f4c5a88f519fc7ee86c93.r2.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
+    setupRecordEditor();
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const processAllBtn = document.getElementById('process-all-btn');
@@ -41,6 +44,129 @@ document.addEventListener('DOMContentLoaded', () => {
         processAllBtn.addEventListener('click', processAll);
     }
 });
+
+function setupRecordEditor() {
+    const form = document.getElementById('record-form');
+    if (!form) return;
+
+    const select = document.getElementById('record-select');
+    const photoInput = document.getElementById('record-photo');
+    const removePhoto = document.getElementById('remove-photo');
+
+    document.getElementById('new-record-btn').addEventListener('click', () => showRecord(null));
+    select.addEventListener('change', () => {
+        showRecord(memorialRecords.find(record => record.id === select.value) || null);
+    });
+    photoInput.addEventListener('change', () => {
+        if (photoInput.files.length) removePhoto.checked = false;
+    });
+    removePhoto.addEventListener('change', () => {
+        if (removePhoto.checked) photoInput.value = '';
+    });
+    form.addEventListener('submit', saveEditedRecord);
+    loadRecords();
+}
+
+async function loadRecords(selectedId = '') {
+    const select = document.getElementById('record-select');
+    const status = document.getElementById('editor-status');
+    try {
+        const response = await fetch('/api/admin/records');
+        if (!response.ok) throw new Error(response.status === 401 ? 'Немає доступу до панелі адміністратора' : 'Не вдалося завантажити записи');
+        memorialRecords = await response.json();
+        select.replaceChildren(new Option('Оберіть запис', ''));
+        memorialRecords.forEach(record => {
+            const name = [record.last_name, record.first_name, record.middle_name].filter(Boolean).join(' ');
+            select.add(new Option(`${name} (${record.id})`, record.id));
+        });
+        if (selectedId && memorialRecords.some(record => record.id === selectedId)) {
+            select.value = selectedId;
+            showRecord(memorialRecords.find(record => record.id === selectedId));
+        } else if (!selectedId) {
+            select.value = '';
+        }
+        status.textContent = '';
+        status.classList.remove('error');
+    } catch (error) {
+        status.textContent = error.message;
+        status.classList.add('error');
+    }
+}
+
+function showRecord(record) {
+    const form = document.getElementById('record-form');
+    form.reset();
+    document.getElementById('editor-status').textContent = '';
+    document.getElementById('editor-status').classList.remove('error');
+    const fields = ['id', 'last_name', 'first_name', 'middle_name', 'rank', 'date_of_birth', 'date_of_death', 'service_history'];
+    fields.forEach(field => {
+        form.elements[field].value = record?.[field] || '';
+    });
+    form.elements.id.readOnly = Boolean(record);
+    document.getElementById('record-photo-preview').hidden = !record?.photo_url;
+    if (record?.photo_url) {
+        document.getElementById('record-photo-preview').src = `${PHOTO_BASE_URL}${record.photo_url}`;
+    } else {
+        document.getElementById('record-photo-preview').removeAttribute('src');
+    }
+    document.getElementById('record-select').value = record?.id || '';
+}
+
+async function fileToBase64(file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let binary = '';
+    for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+    }
+    return btoa(binary);
+}
+
+async function saveEditedRecord(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const status = document.getElementById('editor-status');
+    const saveButton = document.getElementById('save-record-btn');
+    const payload = Object.fromEntries(
+        ['id', 'last_name', 'first_name', 'middle_name', 'rank', 'date_of_birth', 'date_of_death', 'service_history']
+            .map(field => [field, form.elements[field].value])
+    );
+    const photo = document.getElementById('record-photo').files[0];
+    if (photo) {
+        if (photo.size > 8 * 1024 * 1024) {
+            status.textContent = 'Максимальний розмір фотографії — 8 МБ';
+            status.classList.add('error');
+            return;
+        }
+        const extensions = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+        if (!extensions[photo.type]) {
+            status.textContent = 'Підтримуються лише JPG, PNG та WebP';
+            status.classList.add('error');
+            return;
+        }
+        payload.photoBase64 = await fileToBase64(photo);
+        payload.photoExt = extensions[photo.type];
+    }
+    payload.removePhoto = document.getElementById('remove-photo').checked;
+    saveButton.disabled = true;
+    status.classList.remove('error');
+    status.textContent = 'Збереження…';
+    try {
+        const response = await fetch('/api/admin/records', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Не вдалося зберегти запис');
+        await loadRecords(result.id);
+        status.textContent = 'Запис збережено';
+    } catch (error) {
+        status.textContent = error.message;
+        status.classList.add('error');
+    } finally {
+        saveButton.disabled = false;
+    }
+}
 
 /**
  * Handle incoming files from input or drop zone

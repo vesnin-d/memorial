@@ -275,6 +275,69 @@
             justify-content: flex-end;
             margin-top: 0.25rem;
         }
+
+        .editor-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .editor-toolbar, .editor-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .editor-toolbar {
+            grid-template-columns: 1fr auto;
+        }
+
+        .editor-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .editor-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .editor-field input, .editor-field textarea, .editor-field select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: #181818;
+            color: #eee;
+            font: inherit;
+        }
+
+        .editor-field textarea {
+            min-height: 10rem;
+            resize: vertical;
+        }
+
+        .editor-photo-preview {
+            max-width: 120px;
+            max-height: 150px;
+            object-fit: cover;
+        }
+
+        .editor-status {
+            min-height: 1.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .editor-status.error {
+            color: #f44336;
+        }
+
+        @media (max-width: 600px) {
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
     <!-- Client-side DOCX dependencies -->
@@ -284,6 +347,64 @@
 <body>
 
     <div class="admin-card">
+        <section class="editor-section">
+            <h2>Редагування записів</h2>
+            <p class="subtitle">Оберіть наявний запис або створіть новий. Фотографію можна замінити чи видалити.</p>
+            <div class="editor-toolbar">
+                <label class="editor-field">
+                    <span>Запис</span>
+                    <select id="record-select"><option value="">Завантаження…</option></select>
+                </label>
+                <button id="new-record-btn" class="btn-secondary" type="button">Новий запис</button>
+            </div>
+            <form id="record-form">
+                <div class="editor-grid">
+                    <label class="editor-field">
+                        <span>ID запису</span>
+                        <input id="record-id" name="id" required maxlength="100">
+                    </label>
+                    <label class="editor-field">
+                        <span>Звання</span>
+                        <input id="record-rank" name="rank">
+                    </label>
+                    <label class="editor-field">
+                        <span>Прізвище</span>
+                        <input id="record-last-name" name="last_name" required>
+                    </label>
+                    <label class="editor-field">
+                        <span>Ім’я</span>
+                        <input id="record-first-name" name="first_name" required>
+                    </label>
+                    <label class="editor-field">
+                        <span>По батькові</span>
+                        <input id="record-middle-name" name="middle_name" required>
+                    </label>
+                    <label class="editor-field">
+                        <span>Дата народження</span>
+                        <input id="record-date-of-birth" name="date_of_birth">
+                    </label>
+                    <label class="editor-field">
+                        <span>Дата загибелі</span>
+                        <input id="record-date-of-death" name="date_of_death">
+                    </label>
+                    <label class="editor-field full-width">
+                        <span>Історія служби</span>
+                        <textarea id="record-service-history" name="service_history" required></textarea>
+                    </label>
+                    <label class="editor-field full-width">
+                        <span>Нова фотографія</span>
+                        <input id="record-photo" type="file" accept="image/jpeg,image/png,image/webp">
+                    </label>
+                    <label class="editor-field full-width">
+                        <span><input id="remove-photo" type="checkbox"> Видалити поточну фотографію</span>
+                        <img id="record-photo-preview" class="editor-photo-preview" alt="Поточна фотографія" hidden>
+                    </label>
+                </div>
+                <button id="save-record-btn" class="btn-primary" type="submit">Зберегти запис</button>
+                <p id="editor-status" class="editor-status" role="status"></p>
+            </form>
+        </section>
+
         <h2>Завантаження документів (.docx)</h2>
         <p class="subtitle">
             Виберіть один або декілька `.docx` файлів. Браузер розархівує зображення і текст локально та передасть дані на сервер.
