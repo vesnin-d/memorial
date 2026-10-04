@@ -13,3 +13,5 @@ Set these Worker environment variables in Cloudflare:
 Include `/admin.html` and `/api/admin/*` in the Access application’s protected paths. Access policies let you add or remove permitted email addresses without changing the Worker. Configure the same Access application to cover `/api/process` if you use DOCX uploads.
 
 The admin page supports creating and editing records, uploading/replacing photos (JPG, PNG, or WebP, up to 8 MB), and removing existing photos. The DOCX batch uploader remains available below the editor.
+
+The admin interface is built with React. Run `npm ci && npm run build` to bundle it into `public/admin.js` before deploying. The deployment workflow runs this build automatically.

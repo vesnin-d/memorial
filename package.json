@@ -7,14 +7,18 @@
   "type": "module",
   "main": "extraction.js",
   "scripts": {
+    "build": "esbuild src/admin.jsx --bundle --minify --outfile=public/admin.js",
     "test": "node --test"
   },
   "dependencies": {
     "@google/genai": "^2.25.0",
     "adm-zip": "^0.6.1",
-    "mammoth": "^1.13.0"
+    "mammoth": "^1.13.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "wrangler": "^4.145.0"
   }
 }

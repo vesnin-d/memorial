@@ -313,6 +313,10 @@
             font: inherit;
         }
 
+        .editor-field input[type="checkbox"] {
+            width: auto;
+        }
+
         .editor-field textarea {
             min-height: 10rem;
             resize: vertical;
@@ -347,88 +351,12 @@
 <body>
 
     <div class="admin-card">
-        <section class="editor-section">
-            <h2>Редагування записів</h2>
-            <p class="subtitle">Оберіть наявний запис або створіть новий. Фотографію можна замінити чи видалити.</p>
-            <div class="editor-toolbar">
-                <label class="editor-field">
-                    <span>Запис</span>
-                    <select id="record-select"><option value="">Завантаження…</option></select>
-                </label>
-                <button id="new-record-btn" class="btn-secondary" type="button">Новий запис</button>
-            </div>
-            <form id="record-form">
-                <div class="editor-grid">
-                    <label class="editor-field">
-                        <span>ID запису</span>
-                        <input id="record-id" name="id" required maxlength="100">
-                    </label>
-                    <label class="editor-field">
-                        <span>Звання</span>
-                        <input id="record-rank" name="rank">
-                    </label>
-                    <label class="editor-field">
-                        <span>Прізвище</span>
-                        <input id="record-last-name" name="last_name" required>
-                    </label>
-                    <label class="editor-field">
-                        <span>Ім’я</span>
-                        <input id="record-first-name" name="first_name" required>
-                    </label>
-                    <label class="editor-field">
-                        <span>По батькові</span>
-                        <input id="record-middle-name" name="middle_name" required>
-                    </label>
-                    <label class="editor-field">
-                        <span>Дата народження</span>
-                        <input id="record-date-of-birth" name="date_of_birth">
-                    </label>
-                    <label class="editor-field">
-                        <span>Дата загибелі</span>
-                        <input id="record-date-of-death" name="date_of_death">
-                    </label>
-                    <label class="editor-field full-width">
-                        <span>Історія служби</span>
-                        <textarea id="record-service-history" name="service_history" required></textarea>
-                    </label>
-                    <label class="editor-field full-width">
-                        <span>Нова фотографія</span>
-                        <input id="record-photo" type="file" accept="image/jpeg,image/png,image/webp">
-                    </label>
-                    <label class="editor-field full-width">
-                        <span><input id="remove-photo" type="checkbox"> Видалити поточну фотографію</span>
-                        <img id="record-photo-preview" class="editor-photo-preview" alt="Поточна фотографія" hidden>
-                    </label>
-                </div>
-                <button id="save-record-btn" class="btn-primary" type="submit">Зберегти запис</button>
-                <p id="editor-status" class="editor-status" role="status"></p>
-            </form>
-        </section>
+        <div id="record-editor-root"></div>
 
-        <h2>Завантаження документів (.docx)</h2>
-        <p class="subtitle">
-            Виберіть один або декілька `.docx` файлів. Браузер розархівує зображення і текст локально та передасть дані на сервер.
-        </p>
-
-        <!-- Dropzone with correct ID matching admin.js -->
-        <div class="dropzone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-            <p>Натисніть або перетягніть .docx файли сюди</p>
-            <span>Підтримується пакетне завантаження кількох файлів</span>
-            <input type="file" id="file-input" multiple accept=".docx">
-        </div>
-
-        <!-- Global Action Controls -->
-        <div class="controls-bar">
-            <button id="process-all-btn" class="btn-primary" disabled>Обробити всі</button>
-            <button id="clear-queue-btn" class="btn-secondary">Очистити чергу</button>
-        </div>
-
-        <!-- Dynamic Queue Rendering Container -->
-        <div id="queue-container" class="queue-container">
-            <div class="empty-queue">Черга порожня. Перетягніть .docx файли для початку.</div>
-        </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <script src="admin.js" defer></script>
 </body>
 </html>
