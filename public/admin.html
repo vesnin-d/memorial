@@ -275,39 +275,85 @@
             justify-content: flex-end;
             margin-top: 0.25rem;
         }
+
+        .editor-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .editor-toolbar, .editor-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .editor-toolbar {
+            grid-template-columns: 1fr auto;
+        }
+
+        .editor-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .editor-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .editor-field input, .editor-field textarea, .editor-field select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: #181818;
+            color: #eee;
+            font: inherit;
+        }
+
+        .editor-field input[type="checkbox"] {
+            width: auto;
+        }
+
+        .editor-field textarea {
+            min-height: 10rem;
+            resize: vertical;
+        }
+
+        .editor-status {
+            min-height: 1.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .editor-status.error {
+            color: #f44336;
+        }
+
+        @media (max-width: 600px) {
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
-    <!-- Client-side DOCX dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
     <div class="admin-card">
-        <h2>Завантаження документів (.docx)</h2>
-        <p class="subtitle">
-            Виберіть один або декілька `.docx` файлів. Браузер розархівує зображення і текст локально та передасть дані на сервер.
-        </p>
+        <div id="record-editor-root"></div>
 
-        <!-- Dropzone with correct ID matching admin.js -->
-        <div class="dropzone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-            <p>Натисніть або перетягніть .docx файли сюди</p>
-            <span>Підтримується пакетне завантаження кількох файлів</span>
-            <input type="file" id="file-input" multiple accept=".docx">
-        </div>
-
-        <!-- Global Action Controls -->
-        <div class="controls-bar">
-            <button id="process-all-btn" class="btn-primary" disabled>Обробити всі</button>
-            <button id="clear-queue-btn" class="btn-secondary">Очистити чергу</button>
-        </div>
-
-        <!-- Dynamic Queue Rendering Container -->
-        <div id="queue-container" class="queue-container">
-            <div class="empty-queue">Черга порожня. Перетягніть .docx файли для початку.</div>
-        </div>
     </div>
 
+    <script
+        src="https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js"
+        integrity="sha384-DdGlNq+wVXAn83gXqwyeFHB7iyXy6L0rLrNzgDmhKWPjiJLg9vj6qosYmZmkMfQ+"
+        crossorigin="anonymous"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/mammoth@1.13.0/mammoth.browser.min.js"
+        integrity="sha384-8NWE3bZDrmRI4IePMoQaEoLhAQ1MmRMJkdNgnGiHRFanTqsFKr0TmK6aSZvFJ/PO"
+        crossorigin="anonymous"></script>
     <script src="admin.js" defer></script>
 </body>
 </html>

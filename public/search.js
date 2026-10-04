@@ -69,7 +69,20 @@
     }
 
     function photoSRC(photo) {
-        return config + record.photo_url.replace('/photos', '');
+        if (typeof photo !== 'string' || !/^\/[a-zA-Z0-9_\u0400-\u04FF-]+\.(?:jpg|jpeg|png|webp)$/i.test(photo)) {
+            return null;
+        }
+        return `${CONFIG.photoURL}${photo}`;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[character]);
     }
 
     function renderResults(records) {
@@ -90,10 +103,10 @@
             const photoSrc = photoSRC(record.photo_url) || 'https://dummyimage.com/300x400/000/fff&text=Без+фото';
 
             card.innerHTML = `
-                <img src="${photoSrc}" alt="${fullName}" class="card-photo" loading="lazy">
+                <img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(fullName)}" class="card-photo" loading="lazy">
                 <div class="card-body">
-                    <h2 class="card-title">${fullName}</h2>
-                    <div class="card-rank">${record.rank || 'Військовослужбовець'}</div>
+                    <h2 class="card-title">${escapeHtml(fullName)}</h2>
+                    <div class="card-rank">${escapeHtml(record.rank || 'Військовослужбовець')}</div>
                 </div>
             `;
 
@@ -104,21 +117,21 @@
 
     function openModal(record) {
         const fullName = `${record.last_name} ${record.first_name} ${record.middle_name || ''}`.trim();
-        const photoSrc =  photoSRC(record.photo_url) || 'https://via.placeholder.com/300x400?text=No+Photo';
+        const photoSrc = photoSRC(record.photo_url) || 'https://via.placeholder.com/300x400?text=No+Photo';
 
         modalBody.innerHTML = `
             <div class="memorial-profile">
                 <div>
-                    <img src="${photoSrc}" alt="${fullName}" class="profile-photo">
+                    <img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(fullName)}" class="profile-photo">
                     <div class="profile-dates">
-                        ${record.date_of_birth || '?'} — ${record.date_of_death || '?'}
+                        ${escapeHtml(record.date_of_birth || '?')} — ${escapeHtml(record.date_of_death || '?')}
                     </div>
                 </div>
                 <div>
-                    <h2 style="margin-top:0">${fullName}</h2>
-                    <p style="color: var(--muted); font-weight: 500;">${record.rank || ''}</p>
+                    <h2 style="margin-top:0">${escapeHtml(fullName)}</h2>
+                    <p style="color: var(--muted); font-weight: 500;">${escapeHtml(record.rank || '')}</p>
                     <hr style="border: 0; border-top: 1px solid var(--border); margin: 1rem 0;">
-                    <div class="profile-history">${record.service_history || 'Інформація відсутня.'}</div>
+                    <div class="profile-history">${escapeHtml(record.service_history || 'Інформація відсутня.')}</div>
                 </div>
             </div>
         `;
