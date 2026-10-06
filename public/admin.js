@@ -245,7 +245,7 @@ window.selectImageForFile = function(itemIndex, imageIndex) {
 window.selectCustomImageForFile = async function(itemIndex, input) {
     const item = batchQueue[itemIndex];
     const file = input.files[0];
-    if (!item || item.status !== 'pending' || !file) return;
+    if (!item || !['pending', 'error'].includes(item.status) || !file) return;
 
     const imageExtensions = {
         'image/jpeg': 'jpg',
