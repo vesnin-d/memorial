@@ -158,6 +158,20 @@ function renderBatchItem(item, index) {
     container.className = `batch-item-card status-${item.status}`;
 
     let photoHtml = '';
+
+    const customPhotoHtml = `
+        <div class="custom-photo-upload">
+            <label for="custom-photo-${index}">Завантажити власне фото (необов’язково):</label>
+            <input type="file" id="custom-photo-${index}" accept="image/*"
+                   onchange="window.selectCustomImageForFile(${index}, this)">
+        </div>
+        ${item.customPhoto ? `
+            <div class="custom-photo-preview">
+                <img src="${item.customPhoto.dataUrl}" alt="Попередній перегляд власного фото">
+                <span>Власне фото буде використано замість зображень у документі</span>
+                <button class="btn-secondary" onclick="window.clearCustomImageForFile(${index})">Скасувати</button>
+            </div>
+        ` : ''}`;
     
     if (item.images.length === 0) {
         photoHtml = `<div class="no-photo-badge">Без фотографії</div>`;
@@ -200,6 +214,7 @@ function renderBatchItem(item, index) {
             <span class="status-badge status-${item.status}">${statusLabels[item.status] || item.status}</span>
         </div>
         
+        ${customPhotoHtml}
         ${photoHtml}
 
         ${item.errorDetails ? `<div class="error-text">${item.errorDetails}</div>` : ''}
@@ -227,6 +242,55 @@ window.selectImageForFile = function(itemIndex, imageIndex) {
     }
 };
 
+window.selectCustomImageForFile = async function(itemIndex, input) {
+    const item = batchQueue[itemIndex];
+    const file = input.files[0];
+    if (!item || !['pending', 'error'].includes(item.status) || !file) return;
+
+    const imageExtensions = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'image/bmp': 'bmp',
+        'image/avif': 'avif',
+        'image/svg+xml': 'svg'
+    };
+    const extension = imageExtensions[file.type.toLowerCase()];
+    if (!file.type.toLowerCase().startsWith('image/') || !extension) {
+        item.errorDetails = 'Оберіть зображення у форматі JPEG, PNG, GIF, WebP, BMP, AVIF або SVG';
+        renderBatchQueue();
+        return;
+    }
+
+    try {
+        const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+        if (!input.isConnected || !['pending', 'error'].includes(item.status) || input.files[0] !== file) return;
+        item.customPhoto = {
+            base64: dataUrl.split(',')[1],
+            ext: extension,
+            dataUrl
+        };
+        item.errorDetails = null;
+    } catch (err) {
+        item.errorDetails = 'Не вдалося прочитати вибране зображення';
+    }
+
+    renderBatchQueue();
+};
+
+window.clearCustomImageForFile = function(itemIndex) {
+    if (batchQueue[itemIndex] && batchQueue[itemIndex].status === 'pending') {
+        batchQueue[itemIndex].customPhoto = null;
+        renderBatchQueue();
+    }
+};
+
 window.removeQueueItem = function(index) {
     batchQueue.splice(index, 1);
     renderBatchQueue();
@@ -240,9 +304,9 @@ window.processSingleItem = async function(index) {
     item.errorDetails = null;
     renderBatchQueue();
 
-    const selectedPhoto = (item.selectedImageIndex !== null && item.images[item.selectedImageIndex]) 
+    const selectedPhoto = item.customPhoto || ((item.selectedImageIndex !== null && item.images[item.selectedImageIndex])
         ? item.images[item.selectedImageIndex] 
-        : null;
+        : null);
 
     const payload = {
         id: generateCleanId(item.id),
