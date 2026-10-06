@@ -270,6 +270,7 @@ window.selectCustomImageForFile = async function(itemIndex, input) {
             reader.onerror = () => reject(reader.error);
             reader.readAsDataURL(file);
         });
+        if (!input.isConnected || !['pending', 'error'].includes(item.status) || input.files[0] !== file) return;
         item.customPhoto = {
             base64: dataUrl.split(',')[1],
             ext: extension,
